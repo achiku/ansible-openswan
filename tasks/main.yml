@@ -1,0 +1,51 @@
+---
+- name: update apt if needed
+  sudo: yes
+  apt: update_cache=yes cache_valid_time=36000
+
+- name: install basics
+  sudo: yes
+  apt: name={{ item }} state=present
+  with_items: "{{ openswan_packages }}"
+
+- name: get source
+  shell: > 
+    wget https://download.openswan.org/openswan/{{ openswan_tarball }}
+    chdir=/tmp
+    creates=/tmp/{{ openswan_tarball }}
+
+- name: unarchive
+  unarchive: >
+    copy=no
+    src=/tmp/{{ openswan_tarball }}
+    dest=/tmp/
+    creates=/tmp/{{ openswan_src_dir }}
+
+- name: setup Makefile
+  copy: >
+    dest=/tmp/{{ openswan_src_dir }}/Makefile.inc.local
+    src={{ openswan_makefile_path }}
+
+- name: make install
+  shell: make -s programs && make -s install chdir=/tmp/{{ openswan_src_dir }}
+
+- name: net.ipv4.ip_forward=1
+  sysctl: name="net.ipv4.ip_forward" value=1 sysctl_set=yes state=present reload=yes
+
+- name: net.ipv4.conf.all.accept_redirects = 0
+  sysctl: name="net.ipv4.conf.all.accept_redirects" value=0 sysctl_set=yes state=present reload=yes
+
+- name: net.ipv4.conf.all.send_redirects = 0
+  sysctl: name="net.ipv4.conf.all.send_redirects" value=0 sysctl_set=yes state=present reload=yes
+
+- name: net.ipv4.conf.default.send_redirects = 0
+  sysctl: name="net.ipv4.conf.default.send_redirects" value=0 sysctl_set=yes state=present reload=yes
+
+- name: net.ipv4.conf.eth0.send_redirects = 0
+  sysctl: name="net.ipv4.conf.eth0.send_redirects" value=0 sysctl_set=yes state=present reload=yes
+
+- name: net.ipv4.conf.default.accept_redirects = 0
+  sysctl: name="net.ipv4.conf.default.accept_redirects" value=0 sysctl_set=yes state=present reload=yes
+
+- name: net.ipv4.conf.eth0.accept_redirects = 0
+  sysctl: name="net.ipv4.conf.eth0.accept_redirects" value=0 sysctl_set=yes state=present reload=yes

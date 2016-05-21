@@ -1,0 +1,23 @@
+---
+# defaults file for openswan
+openswan_version: 2.6.47.1
+openswan_src_dir: openswan-{{ openswan_version }}
+openswan_tarball: "{{ openswan_src_dir }}.tar.gz"
+openswan_makefile_path: ./files/Makefile
+openswan_packages:
+  - libnss3-dev
+  - libnspr4-dev
+  - pkg-config
+  - libpam0g-dev
+  - libcap-ng-dev
+  - libcap-ng-utils
+  - libselinux1-dev
+  - libcurl4-nss-dev
+  - flex
+  - bison
+  - gcc
+  - make
+  - libunbound-dev
+  - libnss3-tools
+  - libevent-dev
+  - libgmp3-dev
